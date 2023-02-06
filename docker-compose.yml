@@ -1,0 +1,49 @@
+version: "3.8"
+services:
+  # mongo:
+  mongodb:
+    image: mongo
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=password
+    networks:
+      - mern-app
+    volumes:
+      - mongo-data:/data/db
+  # api-server:
+  api:
+    # image: api-server
+    build: ./api
+    restart: always
+    ports:
+      - "4000:4000"
+    networks:
+      - mern-app
+    depends_on:
+      - mongodb
+    volumes:
+      - ./api:/usr/src/app
+      # - ./app/node_modules
+    # react-app:
+  client:
+    # image: react-app
+    restart: always
+    build: ./client
+    stdin_open: true
+    ports: 
+      - "3000:3000"
+    networks:
+      - mern-app
+    depends_on:
+      - api
+    volumes:
+     - ./client:/usr/src/app
+      # - ./app/node_modules
+networks:
+  mern-app:
+    driver: bridge
+volumes:
+  mongo-data:
+    driver: local
